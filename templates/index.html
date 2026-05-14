@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blackjack Trainer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="layout">
+        <section class="card hero">
+            <div class="hero-top">
+                <div>
+                    <p class="eyebrow">Blackjack Basic Strategy Trainer</p>
+                    <h1>First-decision trainer for S17, DAS, late surrender</h1>
+                </div>
+                <div class="score-box">
+                    <span class="score-label">Score</span>
+                    <strong>{{ score.correct }}/{{ score.total }}</strong>
+                    <span class="score-percent">{{ "%.1f"|format(percentage) }}%</span>
+                </div>
+            </div>
+
+            <div class="scenario">
+                <div class="scenario-block">
+                    <span class="label">Player hand</span>
+                    <strong>{{ hand.player_cards[0] }} + {{ hand.player_cards[1] }}</strong>
+                </div>
+                <div class="scenario-block">
+                    <span class="label">Dealer upcard</span>
+                    <strong>{{ hand.dealer_upcard }}</strong>
+                </div>
+                <div class="scenario-block">
+                    <span class="label">Hand type</span>
+                    <strong>{{ hand.hand_kind }}</strong>
+                </div>
+                <div class="scenario-block">
+                    <span class="label">Total</span>
+                    <strong>{{ hand.total }}</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Choose the basic strategy move</h2>
+            <form class="actions" method="post" action="{{ url_for('answer') }}">
+                {% for code, label in move_labels.items() %}
+                <button type="submit" name="move" value="{{ code }}" {% if answered %}disabled{% endif %}>
+                    {{ label }}
+                </button>
+                {% endfor %}
+            </form>
+
+            {% if feedback %}
+            <div class="feedback {{ 'correct' if feedback.is_correct else 'incorrect' }}">
+                <p class="result">
+                    {% if feedback.is_correct %}
+                    Correct.
+                    {% else %}
+                    Not quite.
+                    {% endif %}
+                </p>
+                <p>Your move: <strong>{{ feedback.chosen_label }}</strong></p>
+                <p>Correct move: <strong>{{ feedback.recommended_label }}</strong></p>
+                <p>{{ feedback.explanation }}</p>
+            </div>
+            {% else %}
+            <p class="hint">Pick the best first-decision move for this spot.</p>
+            {% endif %}
+
+            <div class="secondary-actions">
+                <form method="post" action="{{ url_for('next_hand') }}">
+                    <button type="submit" class="secondary">Next Hand</button>
+                </form>
+                <form method="post" action="{{ url_for('reset_score') }}">
+                    <button type="submit" class="secondary">Reset Score</button>
+                </form>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
